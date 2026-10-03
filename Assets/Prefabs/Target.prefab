@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 4757596784498103046}
   - component: {fileID: 2984036584501339129}
   - component: {fileID: 6198942097972784603}
+  - component: {fileID: 5608461438773790509}
   m_Layer: 0
   m_Name: Target
   m_TagString: Untagged
@@ -225,3 +226,16 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5608461438773790509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5781978772692368929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa200b211c301cb4d82706cdf3d05c2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Target
+  explosionPrefab: {fileID: 8093862349249732904, guid: 4342873e0e2d01a42b7b0768f86ede22, type: 3}

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.XR.ARFoundation;
 
 public class ARBasePlacement : MonoBehaviour {
@@ -14,85 +15,112 @@ public class ARBasePlacement : MonoBehaviour {
 
     private GameObject spawnedBase;
 
-    private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
+    private static readonly List<ARRaycastHit> hits =
+        new List<ARRaycastHit>();
 
-    void Update() {
-        // Don't allow another placement
+    private void Update() {
+        // Base can only be placed once
         if (spawnedBase != null)
             return;
 
-#if UNITY_EDITOR
-
-        // -----------------------------
-        // UNITY EDITOR TEST
-        // -----------------------------
-
-        if (Input.GetMouseButtonDown(0)) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out RaycastHit hit)) {
-                PlaceBase(hit.point, Vector3.up);
-            }
+        // Check Input System touchscreen
+        if (Touchscreen.current == null) {
+            return;
         }
 
-#else
-
-        // -----------------------------
-        // REAL AR DEVICE
-        // -----------------------------
-
-        if (Input.touchCount == 0)
+        // Detect a new tap
+        if (!Touchscreen.current.primaryTouch.press.wasPressedThisFrame) {
             return;
+        }
 
-        Touch touch = Input.GetTouch(0);
+        Vector2 touchPosition =
+            Touchscreen.current.primaryTouch.position.ReadValue();
 
-        if (touch.phase != TouchPhase.Began)
+        Debug.Log("SCREEN TAPPED: " + touchPosition);
+
+        // Check Raycast Manager
+        if (raycastManager == null) {
+            Debug.LogError("ERROR: ARRaycastManager is NOT assigned!");
             return;
+        }
 
-        if (raycastManager.Raycast(
-            touch.position,
-            hits,
-            TrackableType.PlaneWithinPolygon))
-        {
+        // Raycast against detected AR surfaces
+        if (raycastManager.Raycast(touchPosition, hits)) {
             Pose hitPose = hits[0].pose;
+
+            Debug.Log(
+                "AR PLANE HIT! Position: " +
+                hitPose.position
+            );
 
             PlaceBase(
                 hitPose.position,
                 hitPose.up
             );
+        } else {
+            Debug.Log(
+                "AR RAYCAST MISS - No detected plane at tap location."
+            );
         }
-
-#endif
     }
 
-    private void PlaceBase(Vector3 position, Vector3 surfaceNormal) {
+    private void PlaceBase(
+        Vector3 position,
+        Vector3 surfaceNormal) {
+        if (gameBasePrefab == null) {
+            Debug.LogError(
+                "ERROR: Game Base Prefab is NOT assigned!"
+            );
+            return;
+        }
+
+        Quaternion rotation = Quaternion.LookRotation(
+            Vector3.forward,
+            surfaceNormal
+        );
+
         spawnedBase = Instantiate(
             gameBasePrefab,
             position,
-            Quaternion.LookRotation(
-                Vector3.forward,
-                surfaceNormal
-            )
+            rotation
         );
-        SpawnTargets(position);
 
-        Debug.Log("Game Base Placed!");
+        Debug.Log(
+            "GAME BASE SPAWNED at " + position
+        );
+
+        SpawnTargets(spawnedBase.transform);
     }
 
-    private void SpawnTargets(Vector3 basePosition) {
-        Vector3[] targetPositions =
-        {
-        basePosition + new Vector3(-0.6f, 1.2f, 0.5f),
-        basePosition + new Vector3(0f, 1.6f, 0.8f),
-        basePosition + new Vector3(0.6f, 1.2f, 0.5f)
-    };
-
-        foreach (Vector3 targetPosition in targetPositions) {
-            Instantiate(
-                targetPrefab,
-                targetPosition,
-                Quaternion.identity
+    private void SpawnTargets(Transform baseTransform) {
+        if (targetPrefab == null) {
+            Debug.LogError(
+                "ERROR: Target Prefab is NOT assigned!"
             );
+            return;
+        }
+
+        Vector3[] localPositions =
+        {
+            new Vector3(-0.6f, 1.2f, 0.5f),
+            new Vector3(0f, 1.6f, 0.8f),
+            new Vector3(0.6f, 1.2f, 0.5f)
+        };
+
+        foreach (Vector3 localPosition in localPositions) {
+            GameObject target = Instantiate(
+                targetPrefab,
+                baseTransform.TransformPoint(localPosition),
+                baseTransform.rotation
+            );
+
+            target.transform.SetParent(baseTransform);
+        }
+
+        Debug.Log("3 TARGETS SPAWNED");
+
+        if (GameManager.Instance != null) {
+            GameManager.Instance.SetTargetCount(3);
         }
     }
 }

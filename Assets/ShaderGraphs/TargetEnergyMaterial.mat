@@ -57,7 +57,7 @@ Material:
     - _QueueOffset: 0
     - _XRMotionVectorsPass: 1
     m_Colors:
-    - _EnergyColor: {r: 0.14905646, g: 1, b: 0.16347924, a: 0.5372549}
+    - _EnergyColor: {r: 1, g: 0.09286968, b: 0, a: 0.96862745}
     - _NoiseScale: {r: 2, g: 2, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
