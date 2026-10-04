@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.ARFoundation;
 
 public class ARBasePlacement : MonoBehaviour {
+    [SerializeField] TextMeshProUGUI planeDetected;
     [Header("AR References")]
     [SerializeField] private ARRaycastManager raycastManager;
 
@@ -14,7 +16,7 @@ public class ARBasePlacement : MonoBehaviour {
     [SerializeField] private GameObject targetPrefab;
 
     private GameObject spawnedBase;
-
+    [SerializeField] private ARAnchorManager anchorManager;
     private static readonly List<ARRaycastHit> hits =
         new List<ARRaycastHit>();
 
@@ -37,6 +39,7 @@ public class ARBasePlacement : MonoBehaviour {
             Touchscreen.current.primaryTouch.position.ReadValue();
 
         Debug.Log("SCREEN TAPPED: " + touchPosition);
+        planeDetected.text = "SCREEN TAPPED: " + touchPosition;
 
         // Check Raycast Manager
         if (raycastManager == null) {
@@ -53,6 +56,7 @@ public class ARBasePlacement : MonoBehaviour {
                 hitPose.position
             );
 
+
             PlaceBase(
                 hitPose.position,
                 hitPose.up
@@ -65,12 +69,10 @@ public class ARBasePlacement : MonoBehaviour {
     }
 
     private void PlaceBase(
-        Vector3 position,
-        Vector3 surfaceNormal) {
+    Vector3 position,
+    Vector3 surfaceNormal) {
         if (gameBasePrefab == null) {
-            Debug.LogError(
-                "ERROR: Game Base Prefab is NOT assigned!"
-            );
+            Debug.LogError("ERROR: Game Base Prefab is NOT assigned!");
             return;
         }
 
@@ -85,9 +87,15 @@ public class ARBasePlacement : MonoBehaviour {
             rotation
         );
 
-        Debug.Log(
-            "GAME BASE SPAWNED at " + position
-        );
+        // Add AR Anchor to the placed GameBase
+        ARAnchor anchor = spawnedBase.GetComponent<ARAnchor>();
+
+        if (anchor == null) {
+            anchor = spawnedBase.AddComponent<ARAnchor>();
+        }
+
+        Debug.Log("GAME BASE SPAWNED AND ANCHORED!");
+        planeDetected.text = "GAME BASE SPAWNED AND ANCHORED";
 
         SpawnTargets(spawnedBase.transform);
     }
@@ -118,6 +126,7 @@ public class ARBasePlacement : MonoBehaviour {
         }
 
         Debug.Log("3 TARGETS SPAWNED");
+        planeDetected.text = "3 TARGETS SPAWNED";
 
         if (GameManager.Instance != null) {
             GameManager.Instance.SetTargetCount(3);
