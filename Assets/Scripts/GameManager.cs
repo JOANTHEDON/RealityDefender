@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour {
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private TextMeshProUGUI waveClearedText;
+    [SerializeField] private GameObject waveClearedGameObject;
 
     private int score = 0;
     private int remainingTargets = 0;
@@ -17,15 +17,15 @@ public class GameManager : MonoBehaviour {
 
     private void Start() {
         UpdateScoreUI();
-        if (waveClearedText != null)
-            waveClearedText.gameObject.SetActive(false);
+        if (waveClearedGameObject != null)
+            waveClearedGameObject.gameObject.SetActive(false);
 
     }
 
     public void SetTargetCount(int count) {
         remainingTargets = count;
-        if (remainingTargets > 0 && waveClearedText != null)
-            waveClearedText.gameObject.SetActive(false);
+        if (remainingTargets > 0 && waveClearedGameObject != null)
+            waveClearedGameObject.gameObject.SetActive(false);
     }
 
     public void TargetDestroyed() {
@@ -44,9 +44,9 @@ public class GameManager : MonoBehaviour {
     }
 
     private void WaveCLeared() {
-        if (waveClearedText != null) {
-            waveClearedText.text = "WAVE CLEARED";
-            waveClearedText.gameObject.SetActive(true);
+        if (waveClearedGameObject != null) {
+
+            waveClearedGameObject.SetActive(true);
         }
     }
 }
