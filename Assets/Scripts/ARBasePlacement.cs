@@ -110,9 +110,9 @@ public class ARBasePlacement : MonoBehaviour {
 
         Vector3[] localPositions =
         {
-            new Vector3(-0.6f, 1.2f, 0.5f),
-            new Vector3(0f, 2f, 0.8f),
-            new Vector3(0.6f, 1.2f, 0.5f)
+            new Vector3(-0.5f, 2.5f, 0.3f),
+            new Vector3(0f,    3.2f, 0.4f),
+            new Vector3(0.5f,  2.5f, 0.3f)
         };
 
         foreach (Vector3 localPosition in localPositions) {
